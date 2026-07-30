@@ -64,7 +64,7 @@ resource "aws_security_group" "simulator_sg" {
 # 3. Provision the Ubuntu EC2 Server Host
 resource "aws_instance" "simulator_host" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro" # Keeps it well within the AWS Free Tier threshold
+  instance_type = "t3.micro" # Keeps it well within the AWS Free Tier threshold
 
   subnet_id              = aws_subnet.simulator_public_subnet.id
   vpc_security_group_ids = [aws_security_group.simulator_sg.id]
