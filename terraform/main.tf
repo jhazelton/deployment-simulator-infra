@@ -1,4 +1,4 @@
-# 1. Fetch the latest official Ubuntu 22.04 LTS AMD64 Image (Matches standard production architecture)
+# 1. Fetch the latest official Ubuntu 22.04 LTS AMD64 Image
 data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
@@ -56,19 +56,40 @@ resource "aws_security_group" "simulator_sg" {
   tags = { Name = "simulator-sg" }
 }
 
-# 3. Provision the Ubuntu EC2 Server Host (t3.small bypasses the legacy Free Tier API blocks)
+# 3. Provision the Ubuntu EC2 Server Host (Inline user_data clears the API validation trap)
 resource "aws_instance" "simulator_host" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.small" # <-- Clean, standard size billed against your credit pool
+  instance_type = "t3.micro" 
 
   subnet_id              = aws_subnet.simulator_public_subnet.id
   vpc_security_group_ids = [aws_security_group.simulator_sg.id]
-  user_data              = file("${path.module}/user_data.sh")
+  
+  # Passes the startup initialization script as a safe, pre-validated native text block
+  user_data = <<-EOT
+    #!/bin/bash
+    export DEBIAN_FRONTEND=noninteractive
+    sudo apt-get update -y
+    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+    curl -fsSL https://docker.com | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://docker.com $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update -y
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+    sudo mkdir -p /home/ubuntu/simulator/incoming
+    sudo mkdir -p /home/ubuntu/simulator/deployed
+    sudo mkdir -p /home/ubuntu/simulator/archived
+    sudo mkdir -p /home/ubuntu/simulator/jim_logs
+    sudo echo "schema_update.sql" > /home/ubuntu/simulator/deployment_files.txt
+    sudo touch /home/ubuntu/simulator/incoming/schema_update.sql
+    sudo chown -R ubuntu:ubuntu /home/ubuntu/simulator
+    sudo chmod -R 777 /home/ubuntu/simulator
+    sudo docker pull jhazelton55/deployment-simulator:latest
+    sudo docker run -d -t --name python-deployment-simulator -v /home/ubuntu/simulator/deployment_files.txt:/app/deployment_files.txt -v /home/ubuntu/simulator/incoming:/app/incoming -v /home/ubuntu/simulator/deployed:/app/deployed -v /home/ubuntu/simulator/archived:/app/archived -v /home/ubuntu/simulator/jim_logs:/app/jim_logs YOUR_DOCKERHUB_USERNAME/deployment-simulator:latest
+  EOT
 
   tags = { Name = "deployment-simulator-host" }
 }
 
-# 4. Output the public IP string to your terminal screen for instant verification
+# 4. Output the public IP string
 output "host_public_ip" {
   value       = aws_instance.simulator_host.public_ip
   description = "The public IP address of your new deployment simulator host"
