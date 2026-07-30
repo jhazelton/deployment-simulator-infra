@@ -1,9 +1,9 @@
-# 1. Fetch the latest official Ubuntu 22.04 LTS ARM64 Image (Matches t4g.micro Graviton architecture)
+# 1. Fetch the latest official Ubuntu 22.04 LTS AMD64 Image (Matches standard production architecture)
 data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
   filter {
     name   = "virtualization-type"
@@ -18,7 +18,6 @@ resource "aws_security_group" "simulator_sg" {
   description = "Allow web, container, and SSH traffic"
   vpc_id      = aws_vpc.simulator_vpc.id
 
-  # Inbound HTTP Traffic
   ingress {
     from_port   = 80
     to_port     = 80
@@ -26,7 +25,6 @@ resource "aws_security_group" "simulator_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Inbound HTTPS Traffic
   ingress {
     from_port   = 443
     to_port     = 443
@@ -34,7 +32,6 @@ resource "aws_security_group" "simulator_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Common Python Developer Web Port (Flask/FastAPI/Django)
   ingress {
     from_port   = 5000
     to_port     = 5000
@@ -42,7 +39,6 @@ resource "aws_security_group" "simulator_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Secure Shell (SSH) Management
   ingress {
     from_port   = 22
     to_port     = 22
@@ -50,7 +46,6 @@ resource "aws_security_group" "simulator_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Unrestricted Outbound Traffic
   egress {
     from_port   = 0
     to_port     = 0
@@ -61,16 +56,14 @@ resource "aws_security_group" "simulator_sg" {
   tags = { Name = "simulator-sg" }
 }
 
-# 3. Provision the Ubuntu EC2 Server Host (t4g.micro handles strict account Free Tier rules)
+# 3. Provision the Ubuntu EC2 Server Host (t3.small bypasses the legacy Free Tier API blocks)
 resource "aws_instance" "simulator_host" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t4g.micro"
+  instance_type = "t3.small" # <-- Clean, standard size billed against your credit pool
 
   subnet_id              = aws_subnet.simulator_public_subnet.id
   vpc_security_group_ids = [aws_security_group.simulator_sg.id]
-
-  # Automatically injects and runs your bash startup script at boot
-  user_data = file("${path.module}/user_data.sh")
+  user_data              = file("${path.module}/user_data.sh")
 
   tags = { Name = "deployment-simulator-host" }
 }
