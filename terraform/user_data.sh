@@ -27,7 +27,7 @@ sudo chmod -R 777 /home/ubuntu/simulator
 
 # 6. Fetch your compiled image and run it continuously using background terminal streams
 # Note: The -d and -t flags keep the one-shot Python process alive in the background!
-sudo docker pull YOUR_DOCKERHUB_USERNAME/YOUR_IMAGE_NAME:latest
+sudo docker pull jhazelton55/deployment-simulator:latest
 sudo docker run -d -t \
   --name python-deployment-simulator \
   -v /home/ubuntu/simulator/deployment_files.txt:/app/deployment_files.txt \
@@ -35,4 +35,4 @@ sudo docker run -d -t \
   -v /home/ubuntu/simulator/deployed:/app/deployed \
   -v /home/ubuntu/simulator/archived:/app/archived \
   -v /home/ubuntu/simulator/jim_logs:/app/jim_logs \
-  YOUR_DOCKERHUB_USERNAME/YOUR_IMAGE_NAME:latest
+  jhazelton55/deployment-simulator:latest
