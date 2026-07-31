@@ -1,9 +1,9 @@
-# 1. Fetch the latest official Ubuntu 22.04 LTS AMD64 Image
+# 1. FIXED: Explicitly target the standard AMD64 (x86_64) Ubuntu architecture
 data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"] # <-- Explicitly amd64
   }
   filter {
     name   = "virtualization-type"
@@ -56,10 +56,10 @@ resource "aws_security_group" "simulator_sg" {
   tags = { Name = "simulator-sg" }
 }
 
-# 3. Provision the Ubuntu EC2 Server Host (Inline user_data clears the API validation trap)
+# 3. Provision the Ubuntu EC2 Server Host (Perfect match for the amd64 architecture filter)
 resource "aws_instance" "simulator_host" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro" 
+  instance_type = "t3.micro" # <-- Clean, free-tier eligible instance class
 
   subnet_id              = aws_subnet.simulator_public_subnet.id
   vpc_security_group_ids = [aws_security_group.simulator_sg.id]
