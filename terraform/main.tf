@@ -12,6 +12,8 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical's official AWS Owner ID
 }
 
+# hope this finally works now.
+
 # 2. Build the Firewall (Security Group)
 resource "aws_security_group" "simulator_sg" {
   name        = "simulator-sg"
