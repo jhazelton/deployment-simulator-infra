@@ -1,4 +1,7 @@
 #!/bin/bash
+# Wait 30 seconds for native Ubuntu cloud-init tasks to settle down
+sleep 30
+
 # 1. Prevent interactive prompts during installation
 export DEBIAN_FRONTEND=noninteractive
 
@@ -17,7 +20,7 @@ sudo mkdir -p /home/ubuntu/simulator/archived
 sudo mkdir -p /home/ubuntu/simulator/jim_logs
 
 # 4. Generate a default tracking manifest so the initial validation check passes
-sudo echo "schema_update.sql" > /home/ubuntu/simulator/deployment_files.txt
+echo "schema_update.sql" | sudo tee /home/ubuntu/simulator/deployment_files.txt
 sudo touch /home/ubuntu/simulator/incoming/schema_update.sql
 
 # 5. Fix user permissions so the Docker runtime engine can alter files on the host
