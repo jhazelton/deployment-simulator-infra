@@ -1,15 +1,14 @@
 #!/bin/bash
-# 1. Update system packages safely
+# 1. Prevent interactive prompts during installation
 export DEBIAN_FRONTEND=noninteractive
-sudo apt-get update -y
-sudo apt-get upgrade -y
 
-# 2. Install Docker Engine cleanly
-sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://docker.com | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://docker.com $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# 2. Update packages and install Docker natively
 sudo apt-get update -y
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo apt-get install -y docker.io
+
+# Start and enable the Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
 
 # 3. Create host storage directories matching your Python script definitions
 sudo mkdir -p /home/ubuntu/simulator/incoming
@@ -26,7 +25,7 @@ sudo chown -R ubuntu:ubuntu /home/ubuntu/simulator
 sudo chmod -R 777 /home/ubuntu/simulator
 
 # 6. Fetch your compiled image and run it continuously using background terminal streams
-# Note: The -d and -t flags keep the one-shot Python process alive in the background!
+# Make sure to swap out the placeholder text below with your actual Docker Hub image name!
 sudo docker pull jhazelton55/deployment-simulator:latest
 sudo docker run -d -t \
   --name python-deployment-simulator \
