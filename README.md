@@ -4,10 +4,12 @@ This repository contains the Infrastructure as Code (IaC) configuration to autom
 
 This project represents the Continuous Deployment (CD) and infrastructure provisioning layer of a complete CI/CD workflow.
 
+Together with the companion Deployment Simulator repository, this project demonstrates the complete lifecycle from application development and continuous integration through automated cloud infrastructure provisioning and deployment.
+
 ## Why This Project?
 Modern Platform Engineers and Release Automation Engineers are expected to automate not only application deployments but also the infrastructure required to host them.
 
-I built this project to demonstrate an end-to-end Infrastructure-as-Code deployment workflow using Terraform, AWS, Docker, and GitHub. Together with the companion Deployment Simulator repository, this project showcases a complete CI/CD solution—from application development and containerization to automated cloud provisioning and deployment.
+I built this project to demonstrate an end-to-end Infrastructure-as-Code deployment workflow using Terraform, AWS, Docker, and GitHub. Together with the companion Deployment Simulator repository, this project demonstrates a complete CI/CD workflow—from Python application development and GitHub Actions continuous integration to Docker image publication, Terraform infrastructure provisioning, automated deployment on AWS, and infrastructure teardown.
 
 The project demonstrates practical experience with:
 
@@ -34,7 +36,7 @@ The project demonstrates practical experience with:
 
 ## 🔗 Architecture Overview & Pipeline Integration
 
-1. **Application Layer (CI):** The core Python application logic is managed in the [Deployment Simulator Core Repository] (https://github.com/jhazelton/Deployment_simulator). Changes there trigger GitHub Actions to build and publish a container image to [Docker Hub](https://hub.docker.com/repository/docker/jhazelton55/deployment-simulator/general).
+1. **Application Layer (CI):** The core Python application logic is managed in the [Deployment Simulator Core Repository](https://github.com/jhazelton/Deployment_simulator). Changes there trigger GitHub Actions to build and publish a container image to [Docker Hub](https://hub.docker.com/repository/docker/jhazelton55/deployment-simulator/general).
 2. **Infrastructure Layer (CD):** This repository connects directly to **HCP Terraform** via webhooks. Every commit to the `main` branch automatically triggers a speculative plan and execution run to safely manage AWS infrastructure.
 
 ## 🛠️ AWS Infrastructure Topology
@@ -52,3 +54,15 @@ At system boot, AWS executes a customized `user_data.sh` initialization script t
 2. **Native Runtime Installation:** Installs and enables the Docker container engine cleanly without legacy repository bloat.
 3. **Storage Orchestration:** Creates persistent host volume paths (`incoming`, `deployed`, `archived`, and `jim_logs`) with optimized user ownership configurations (`chown`/`chmod`).
 4. **Artifact Retrieval & Execution:** Pulls the compiled application image directly from Docker Hub and initializes the container utilizing host-to-container directory mounts (`-v`) to ensure telemetry logs persist directly on the host machine.
+
+## What This Project Demonstrates
+
+This project demonstrates my ability to:
+
+- Design Infrastructure as Code using Terraform
+- Provision secure AWS infrastructure
+- Deploy containerized applications automatically
+- Integrate Docker Hub into deployment workflows
+- Automate Linux host configuration using EC2 User Data
+- Build repeatable deployment environments
+- Manage the complete infrastructure lifecycle using `terraform destroy`
