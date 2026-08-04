@@ -57,7 +57,7 @@ At system boot, AWS executes a customized `user_data.sh` initialization script t
 
 ## Infrastructure Lifecycle
 
-The environment is intentionally ephemeral.
+The environment is intentionally dynamic.  Environment can be spun up or destroyed as needed.
 
 After validation is complete, all AWS resources are removed using:
 
