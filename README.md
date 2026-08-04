@@ -9,7 +9,7 @@ Together with the companion Deployment Simulator repository, this project demons
 ## Why This Project?
 Modern Platform Engineers and Release Automation Engineers are expected to automate not only application deployments but also the infrastructure required to host them.
 
-I built this project to demonstrate an end-to-end Infrastructure-as-Code deployment workflow using Terraform, AWS, Docker, and GitHub. Together with the companion Deployment Simulator repository, this project demonstrates a complete CI/CD workflow—from Python application development and GitHub Actions continuous integration to Docker image publication, Terraform infrastructure provisioning, automated deployment on AWS, and infrastructure teardown.
+I built this project to demonstrate practical Platform Engineering and Release Automation skills using modern cloud-native tooling. Together with the companion Deployment Simulator repository, it demonstrates a complete CI/CD workflow—from Python application development and GitHub Actions continuous integration to Docker image publication, Terraform infrastructure provisioning, automated deployment on AWS, and infrastructure teardown.
 
 The project demonstrates practical experience with:
 
@@ -54,6 +54,16 @@ At system boot, AWS executes a customized `user_data.sh` initialization script t
 2. **Native Runtime Installation:** Installs and enables the Docker container engine cleanly without legacy repository bloat.
 3. **Storage Orchestration:** Creates persistent host volume paths (`incoming`, `deployed`, `archived`, and `jim_logs`) with optimized user ownership configurations (`chown`/`chmod`).
 4. **Artifact Retrieval & Execution:** Pulls the compiled application image directly from Docker Hub and initializes the container utilizing host-to-container directory mounts (`-v`) to ensure telemetry logs persist directly on the host machine.
+
+## Infrastructure Lifecycle
+
+The environment is intentionally ephemeral.
+
+After validation is complete, all AWS resources are removed using:
+
+terraform destroy
+
+This demonstrates repeatable Infrastructure-as-Code practices while minimizing cloud costs by ensuring all provisioned resources are automatically cleaned up after testing.
 
 ## What This Project Demonstrates
 
