@@ -2,7 +2,35 @@
 
 This repository contains the Infrastructure as Code (IaC) configuration to automatically provision a secure AWS environment and deploy the containerized Deployment Simulator application. 
 
-This project represents the Continuous Deployment (CD) and infrastructure provisioning layer of a full-lifecycle GitOps pipeline.
+This project represents the Continuous Deployment (CD) and infrastructure provisioning layer of a complete CI/CD workflow.
+
+## Why This Project?
+Modern Platform Engineers and Release Automation Engineers are expected to automate not only application deployments but also the infrastructure required to host them.
+
+I built this project to demonstrate an end-to-end Infrastructure-as-Code deployment workflow using Terraform, AWS, Docker, and GitHub. Together with the companion Deployment Simulator repository, this project showcases a complete CI/CD solution—from application development and containerization to automated cloud provisioning and deployment.
+
+The project demonstrates practical experience with:
+
+- Infrastructure as Code (Terraform)
+- AWS infrastructure provisioning
+- Docker container deployment
+- GitHub Actions CI integration
+- Automated EC2 bootstrapping
+- End-to-end deployment automation
+- Repeatable infrastructure lifecycle management using `terraform destroy`
+
+## Skills Demonstrated
+
+- Terraform
+- AWS (VPC, EC2, Security Groups)
+- Docker
+- Docker Hub
+- GitHub
+- GitHub Actions
+- Infrastructure as Code (IaC)
+- Continuous Deployment (CD)
+- Linux (Ubuntu)
+- Automation
 
 ## 🔗 Architecture Overview & Pipeline Integration
 
