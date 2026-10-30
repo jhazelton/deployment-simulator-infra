@@ -39,10 +39,15 @@ The project demonstrates practical experience with:
 1. **Application Layer (CI):** The core Python application logic is managed in the [Deployment Simulator Core Repository](https://github.com/jhazelton/Deployment_simulator). Changes there trigger GitHub Actions to build and publish a container image to [Docker Hub](https://hub.docker.com/repository/docker/jhazelton55/deployment-simulator/general).
 2. **Infrastructure Layer (CD):** This repository connects directly to **HCP Terraform** via webhooks. Every commit to the `main` branch automatically triggers a speculative plan and execution run to safely manage AWS infrastructure.
 
-##  Verification (AWS End-to-End)
-The [`docs/Verification-aws-run.txt`](docs/Verification-aws-run.txt)
-Verification-aws-run.txt file contains the results of both runs of the deployment simulator on aws.
-The first run of the simulator is on a fresh/clean host. At the end of the first run the archived folder is empty because the deployed folder was also empty.  On the second run those files exist in the deployed folder and are moved to the archived folder.
+## Verification (AWS End-to-End)
+The [`docs/Verification-aws-run.txt`](docs/Verification-aws-run.txt) file contains the results of both runs of the deployment simulator on aws.
+- **Run 1 (fresh host):** `Archived: 0` — the `archived/` folder is empty because `deployed/`
+  was empty at the start of the run.
+- **Run 2 (redeploy):** `Archived: 4` — the files from run 1 existed in `deployed/`, so they
+  were moved to `archived/` with timestamped version names before the new versions deployed.
+
+Both runs: `Processed: 5 / Failed: 1 / Deployed: 4`, with host-mounted logs written to
+`jim_logs/`.
 
 
 ## 🛠️ AWS Infrastructure Topology
