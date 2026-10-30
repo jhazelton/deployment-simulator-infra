@@ -40,7 +40,7 @@ The project demonstrates practical experience with:
 2. **Infrastructure Layer (CD):** This repository connects directly to **HCP Terraform** via webhooks. Every commit to the `main` branch automatically triggers a speculative plan and execution run to safely manage AWS infrastructure.
 
 ##  Verification (AWS End-to-End)
-The [`docs/verification-aws-run.txt`](docs/verification-aws-run.txt)
+The [`docs/Verification-aws-run.txt`](docs/Verification-aws-run.txt)
 Verification-aws-run.txt file contains the results of both runs of the deployment simulator on aws.
 The first run of the simulator is on a fresh/clean host. At the end of the first run the archived folder is empty because the deployed folder was also empty.  On the second run those files exist in the deployed folder and are moved to the archived folder.
 
