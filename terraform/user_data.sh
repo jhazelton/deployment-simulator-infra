@@ -14,26 +14,21 @@ sudo systemctl start docker
 sudo systemctl enable docker
 
 # 3. Create host storage directories matching your Python script definitions
-sudo mkdir -p /home/ubuntu/simulator/incoming
 sudo mkdir -p /home/ubuntu/simulator/deployed
 sudo mkdir -p /home/ubuntu/simulator/archived
 sudo mkdir -p /home/ubuntu/simulator/jim_logs
 
-# 4. Generate a default tracking manifest so the initial validation check passes
-echo "schema_update.sql" | sudo tee /home/ubuntu/simulator/deployment_files.txt
-sudo touch /home/ubuntu/simulator/incoming/schema_update.sql
-
-# 5. Fix user permissions so the Docker runtime engine can alter files on the host
+# 4. Fix user permissions so the Docker runtime engine can alter files on the host
 sudo chown -R ubuntu:ubuntu /home/ubuntu/simulator
-sudo chmod -R 777 /home/ubuntu/simulator
+sudo chmod -R 755 /home/ubuntu/simulator
+# if the container (running as a non-ubuntu user) needs write access to outputs:
+sudo chmod -R 775 /home/ubuntu/simulator/deployed /home/ubuntu/simulator/archived /home/ubuntu/simulator/jim_logs
 
-# 6. Fetch your compiled image and run it continuously using background terminal streams
+# 5. Fetch your compiled image and run it continuously using background terminal streams
 # Make sure to swap out the placeholder text below with your actual Docker Hub image name!
 sudo docker pull jhazelton55/deployment-simulator:latest
 sudo docker run -d -t \
   --name python-deployment-simulator \
-  -v /home/ubuntu/simulator/deployment_files.txt:/app/deployment_files.txt \
-  -v /home/ubuntu/simulator/incoming:/app/incoming \
   -v /home/ubuntu/simulator/deployed:/app/deployed \
   -v /home/ubuntu/simulator/archived:/app/archived \
   -v /home/ubuntu/simulator/jim_logs:/app/jim_logs \
