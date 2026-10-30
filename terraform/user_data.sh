@@ -25,7 +25,6 @@ sudo chmod -R 755 /home/ubuntu/simulator
 sudo chmod -R 775 /home/ubuntu/simulator/deployed /home/ubuntu/simulator/archived /home/ubuntu/simulator/jim_logs
 
 # 5. Fetch your compiled image and run it continuously using background terminal streams
-# Make sure to swap out the placeholder text below with your actual Docker Hub image name!
 sudo docker pull jhazelton55/deployment-simulator:latest
 sudo docker run -d -t \
   --name python-deployment-simulator \
