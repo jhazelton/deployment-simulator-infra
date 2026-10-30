@@ -1,0 +1,140 @@
+------------------------------------------------------
+AWS End-to-End Verification — Deployment Simulator
+Date: 2026-10-30
+Host: EC2 Ubuntu (i-0bd57e44b94cbf52f, us-east-1), provisioned via Terraform
+Flow: terraform apply → EC2 user_data → docker pull (Docker Hub) → container run → host-mounted logs
+Run 1: Processed 5 / Archived 0 / Failed 1 / Deployed 4 (fresh host)
+Run 2: Processed 5 / Archived 4 / Failed 1 / Deployed 4 (archive path + timestamped version retention)
+Result: full lifecycle verified on AWS
+------------------------------------------------------
+
+
+ubuntu@ip-10-0-1-106:~$ echo "=== AWS EC2 Host ===" 
+=== AWS EC2 Host ===
+ubuntu@ip-10-0-1-106:~$ hostname
+ip-10-0-1-106
+ubuntu@ip-10-0-1-106:~$ curl -s http://169.254.169.254/latest/meta-data/instance-id; echo
+i-0bd57e44b94cbf52f
+ubuntu@ip-10-0-1-106:~$ curl -s http://169.254.169.254/latest/meta-data/placement/region; echo
+us-east-1
+ubuntu@ip-10-0-1-106:~$ uname -a
+Linux ip-10-0-1-106 6.8.0-1066-aws #69~22.04.1-Ubuntu SMP Mon Sep 21 16:20:15 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+ubuntu@ip-10-0-1-106:~$ echo
+
+ubuntu@ip-10-0-1-106:~$ echo "=== Container State ==="
+=== Container State ===
+ubuntu@ip-10-0-1-106:~$ sudo docker ps -a
+CONTAINER ID   IMAGE                                     COMMAND                  CREATED          STATUS                      PORTS     NAMES
+2311e2c6ed86   jhazelton55/deployment-simulator:latest   "python3 jim_dply3.py"   55 minutes ago   Exited (0) 55 minutes ago             python-deployment-simulator
+ubuntu@ip-10-0-1-106:~$ echo "=== Container Inputs (proves image's 5 files are visible) ==="
+=== Container Inputs (proves image's 5 files are visible) ===
+
+ubuntu@ip-10-0-1-106:~$ sudo docker run --rm jhazelton55/deployment-simulator:latest ls -la /app/incoming/
+total 28
+drwxr-xr-x 2 root root 4096 Aug  2 16:01 .
+drwxr-xr-x 1 root root 4096 Aug  2 16:01 ..
+-rw-r--r-- 1 root root  160 Aug  2 16:01 billing_update_v2.zip
+-rw-r--r-- 1 root root   64 Aug  2 16:01 customer_api_v1.zip
+-rw-r--r-- 1 root root   49 Aug  2 16:01 data_insert.txt
+-rw-r--r-- 1 root root  169 Aug  2 16:01 database_script_v3.sql
+-rw-r--r-- 1 root root  168 Aug  2 16:01 frontend_patch.zip
+ubuntu@ip-10-0-1-106:~$ 
+ubuntu@ip-10-0-1-106:~$ echo "=== Host Output Directories (proves persistence) ==="
+=== Host Output Directories (proves persistence) ===
+ubuntu@ip-10-0-1-106:~$ ls -la /home/ubuntu/simulator/deployed/ /home/ubuntu/simulator/archived/ /home/ubuntu/simulator/jim_logs/
+/home/ubuntu/simulator/archived/:
+total 8
+drwxrwxr-x 2 ubuntu ubuntu 4096 Oct 30 13:19 .
+drwxr-xr-x 5 ubuntu ubuntu 4096 Oct 30 13:19 ..
+
+/home/ubuntu/simulator/deployed/:
+total 24
+drwxrwxr-x 2 ubuntu ubuntu 4096 Oct 30 13:19 .
+drwxr-xr-x 5 ubuntu ubuntu 4096 Oct 30 13:19 ..
+-rw-r--r-- 1 root   root    160 Oct 30 13:19 billing_update_v2.zip
+-rw-r--r-- 1 root   root     64 Oct 30 13:19 customer_api_v1.zip
+-rw-r--r-- 1 root   root    169 Oct 30 13:19 database_script_v3.sql
+-rw-r--r-- 1 root   root    168 Oct 30 13:19 frontend_patch.zip
+
+/home/ubuntu/simulator/jim_logs/:
+total 12
+drwxrwxr-x 2 ubuntu ubuntu 4096 Oct 30 13:19 .
+drwxr-xr-x 5 ubuntu ubuntu 4096 Oct 30 13:19 ..
+-rw-r--r-- 1 root   root   1131 Oct 30 13:19 dplylogs
+ubuntu@ip-10-0-1-106:~$ 
+ubuntu@ip-10-0-1-106:~$ echo "=== Container Stdout (docker logs) ==="
+=== Container Stdout (docker logs) ===
+ubuntu@ip-10-0-1-106:~$ 
+ubuntu@ip-10-0-1-106:~$ sudo docker logs python-deployment-simulator
+Copying file -  incoming/customer_api_v1.zip to   ->  deployed/customer_api_v1.zip
+Copying file -  incoming/billing_update_v2.zip to   ->  deployed/billing_update_v2.zip
+Copying file -  incoming/frontend_patch.zip to   ->  deployed/frontend_patch.zip
+Copying file -  incoming/database_script_v3.sql to   ->  deployed/database_script_v3.sql
+Error: Invalid file extension '.txt' on' incoming/data_insert.txt'
+
+Deployment Summary
+------------------
+Processed: 5
+Archived:  0
+Failed:    1
+Deployed:  4
+
+ubuntu@ip-10-0-1-106:~$ echo "=== Host-Mounted Runtime Log (proves mount) ==="
+=== Host-Mounted Runtime Log (proves mount) ===
+ubuntu@ip-10-0-1-106:~$ cat /home/ubuntu/simulator/jim_logs/*
+[2026-10-30 13:19:28]   Starting Deployment:    customer_api_v1.zip
+[2026-10-30 13:19:28]   Validation Successful:  customer_api_v1.zip
+[2026-10-30 13:19:28]   Success. All actions completed for: customer_api_v1.zip
+[2026-10-30 13:19:28]   Starting Deployment:    billing_update_v2.zip
+[2026-10-30 13:19:28]   Validation Successful:  billing_update_v2.zip
+[2026-10-30 13:19:28]   Success. All actions completed for: billing_update_v2.zip
+[2026-10-30 13:19:28]   Starting Deployment:    frontend_patch.zip
+[2026-10-30 13:19:28]   Validation Successful:  frontend_patch.zip
+[2026-10-30 13:19:28]   Success. All actions completed for: frontend_patch.zip
+[2026-10-30 13:19:28]   Starting Deployment:    database_script_v3.sql
+[2026-10-30 13:19:28]   Validation Successful:  database_script_v3.sql
+[2026-10-30 13:19:28]   Success. All actions completed for: database_script_v3.sql
+[2026-10-30 13:19:28]   Starting Deployment:    data_insert.txt
+[2026-10-30 13:19:28]   Deployment Summary
+[2026-10-30 13:19:28]   Processed: 5
+[2026-10-30 13:19:28]   Archived:  0
+[2026-10-30 13:19:28]   Failed:    1
+[2026-10-30 13:19:28]   Deployed:  4
+
+
+
+ubuntu@ip-10-0-1-106:~$ sudo docker run -d -t --name python-deployment-simulator \
+  -v /home/ubuntu/simulator/deployed:/app/deployed \
+  -v /home/ubuntu/simulator/archived:/app/archived \
+  -v /home/ubuntu/simulator/jim_logs:/app/jim_logs \
+  jhazelton55/deployment-simulator:latest
+f4ddbfb59a6355343c7ea9c1eb6f3f8cb42a225339221fdbecd01e0ca762c19f
+ubuntu@ip-10-0-1-106:~$ sleep 10
+ubuntu@ip-10-0-1-106:~$ echo "=== Second Run: Archive Path ==="
+=== Second Run: Archive Path ===
+ubuntu@ip-10-0-1-106:~$ sudo docker logs python-deployment-simulator
+Archiving existing version of: customer_api_v1.zip
+Copying file -  incoming/customer_api_v1.zip to   ->  deployed/customer_api_v1.zip
+Archiving existing version of: billing_update_v2.zip
+Copying file -  incoming/billing_update_v2.zip to   ->  deployed/billing_update_v2.zip
+Archiving existing version of: frontend_patch.zip
+Copying file -  incoming/frontend_patch.zip to   ->  deployed/frontend_patch.zip
+Archiving existing version of: database_script_v3.sql
+Copying file -  incoming/database_script_v3.sql to   ->  deployed/database_script_v3.sql
+Error: Invalid file extension '.txt' on' incoming/data_insert.txt'
+
+Deployment Summary
+------------------
+Processed: 5
+Archived:  4
+Failed:    1
+Deployed:  4
+ubuntu@ip-10-0-1-106:~$ sudo ls -la /home/ubuntu/simulator/archived/
+total 24
+drwxrwxr-x 2 ubuntu ubuntu 4096 Oct 30 16:10 .
+drwxr-xr-x 5 ubuntu ubuntu 4096 Oct 30 13:19 ..
+-rw-r--r-- 1 root   root    160 Oct 30 13:19 billing_update_v2_20261030_161049.zip
+-rw-r--r-- 1 root   root     64 Oct 30 13:19 customer_api_v1_20261030_161049.zip
+-rw-r--r-- 1 root   root    169 Oct 30 13:19 database_script_v3_20261030_161049.sql
+-rw-r--r-- 1 root   root    168 Oct 30 13:19 frontend_patch_20261030_161049.zip
+ubuntu@ip-10-0-1-106:~$ 
